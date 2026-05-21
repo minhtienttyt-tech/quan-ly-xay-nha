@@ -89,7 +89,7 @@ function openEditCategory(id) {
   document.getElementById('modal-cat-title').textContent = 'Sửa Hạng Mục';
   document.getElementById('inp-cat-id').value   = cat.id;
   document.getElementById('inp-cat-name').value = cat.name;
-  document.getElementById('inp-cat-budget').value = cat.budget || '';
+  document.getElementById('inp-cat-budget').value = cat.budget ? formatInputCurrency(cat.budget) : '';
   selectedColor = cat.color || CAT_COLORS[0];
   selectedIcon  = cat.icon  || CAT_ICONS[0];
   initCategoryModal();

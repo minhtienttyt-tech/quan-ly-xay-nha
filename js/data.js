@@ -79,8 +79,10 @@ const DB = {
     const data = _load();
     data.categories = data.categories.filter(c => c.id !== id);
     // Also remove transactions for this category
+    const toDelete = data.transactions.filter(t => t.categoryId === id);
     data.transactions = data.transactions.filter(t => t.categoryId !== id);
     _save(data);
+    toDelete.forEach(t => this.syncToGoogleSheet('delete', t));
   },
 
   // ── Transactions ───────────────────────────
@@ -140,5 +142,69 @@ const DB = {
   /** Reset to default data (for dev) */
   reset() {
     _save(JSON.parse(JSON.stringify(DEFAULT_DATA)));
+  },
+
+  // ── Sync with Google Sheets ────────────────
+
+  async syncFromGoogleSheet() {
+    const proj = this.getProject();
+    if (!proj.googleSheetUrl) throw new Error("Chưa cấu hình URL Google Sheet");
+    
+    const res = await fetch(proj.googleSheetUrl);
+    const rows = await res.json();
+    
+    const newTxns = rows.map(r => {
+      // Find category by ID or by Name
+      let catId = r['CategoryID'];
+      if (!catId) {
+        const catName = r['Hạng mục'];
+        const cat = this.getCategories().find(c => c.name === catName);
+        catId = cat ? cat.id : this.getCategories()[0].id;
+      }
+      return {
+        id: String(r['ID'] || r['id'] || genId('txn')),
+        categoryId: catId,
+        description: r['Mô tả'] || '',
+        amount: parseNum(r['Số tiền']),
+        date: r['Ngày'] || '',
+        note: r['Ghi chú'] || ''
+      };
+    }).filter(t => t.id && t.amount > 0);
+
+    const data = _load();
+    data.transactions = newTxns;
+    _save(data);
+    return newTxns;
+  },
+
+  async syncToGoogleSheet(action, txn) {
+    const proj = this.getProject();
+    if (!proj.googleSheetUrl) return; // Do not fail, just skip
+
+    const cat = this.getCategories().find(c => c.id === txn.categoryId);
+    const payload = {
+      action,
+      transaction: {
+        id: txn.id,
+        categoryId: txn.categoryId,
+        categoryName: cat ? cat.name : '',
+        description: txn.description,
+        amount: txn.amount,
+        date: txn.date,
+        note: txn.note || ''
+      }
+    };
+
+    try {
+      await fetch(proj.googleSheetUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify(payload)
+      });
+    } catch (e) {
+      console.error('Lỗi đồng bộ:', e);
+    }
   }
 };

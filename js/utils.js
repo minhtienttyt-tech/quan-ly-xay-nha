@@ -77,6 +77,15 @@ function monthKey(dateStr) {
 
 /** Parse number input safely */
 function parseNum(val) {
-  const n = parseFloat(String(val).replace(/[^\d.]/g, ''));
-  return isNaN(n) ? 0 : n;
+  const str = String(val);
+  const isNegative = str.trim().startsWith('-');
+  const n = parseInt(str.replace(/[^\d]/g, ''), 10);
+  if (isNaN(n)) return 0;
+  return isNegative ? -n : n;
+}
+
+/** Format raw number for input fields */
+function formatInputCurrency(val) {
+  if (val === undefined || val === null || isNaN(val) || val === '') return '';
+  return new Intl.NumberFormat('vi-VN').format(val);
 }

@@ -33,9 +33,10 @@ function refreshAll() {
 function openSettings() {
   const p = DB.getProject();
   document.getElementById('inp-proj-name').value    = p.name || '';
-  document.getElementById('inp-total-budget').value = p.totalBudget || '';
+  document.getElementById('inp-total-budget').value = p.totalBudget ? formatInputCurrency(p.totalBudget) : '';
   document.getElementById('inp-start-date').value   = p.startDate || '';
   document.getElementById('inp-end-date').value     = p.endDate || '';
+  document.getElementById('inp-sheet-url').value    = p.googleSheetUrl || '';
   openModal('modal-settings');
 }
 
@@ -44,8 +45,9 @@ function saveSettings() {
   const totalBudget = parseNum(document.getElementById('inp-total-budget').value);
   const startDate   = document.getElementById('inp-start-date').value;
   const endDate     = document.getElementById('inp-end-date').value;
+  const googleSheetUrl = document.getElementById('inp-sheet-url').value.trim();
   if (!name) { showToast('Vui lòng nhập tên dự án', 'error'); return; }
-  DB.saveProject({ name, totalBudget, startDate, endDate });
+  DB.saveProject({ name, totalBudget, startDate, endDate, googleSheetUrl });
   closeModal('modal-settings');
   showToast('Đã lưu thông tin dự án');
   refreshAll();
@@ -61,6 +63,20 @@ function bindEvents() {
 
   // Header
   document.getElementById('settings-btn').addEventListener('click', openSettings);
+  document.getElementById('sync-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('sync-btn');
+    btn.style.opacity = '0.5';
+    try {
+      showToast('Đang đồng bộ dữ liệu...', 'info');
+      await DB.syncFromGoogleSheet();
+      showToast('Đồng bộ thành công!');
+      refreshAll();
+    } catch (e) {
+      showToast(e.message || 'Lỗi đồng bộ', 'error');
+    } finally {
+      btn.style.opacity = '1';
+    }
+  });
 
   // Edit budget shortcut on dashboard
   document.getElementById('edit-budget-btn').addEventListener('click', openSettings);
@@ -93,6 +109,17 @@ function bindEvents() {
 
   // Search
   document.getElementById('txn-search').addEventListener('input', renderTransactions);
+
+  // Auto-format currency inputs
+  ['inp-total-budget', 'inp-cat-budget', 'inp-txn-amount'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', function(e) {
+        const raw = e.target.value.replace(/[^\d]/g, '');
+        e.target.value = raw ? formatInputCurrency(parseInt(raw, 10)) : '';
+      });
+    }
+  });
 
   // Close buttons (data-close attribute)
   document.querySelectorAll('.close-btn[data-close]').forEach(btn => {

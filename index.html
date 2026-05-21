@@ -37,6 +37,9 @@
           </div>
         </div>
         <div class="header-right">
+          <button class="icon-btn" id="sync-btn" title="Đồng bộ Google Sheet">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.92-10.26l5.67-5.67"/></svg>
+          </button>
           <button class="icon-btn" id="settings-btn" title="Cài đặt">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2"/></svg>
           </button>
@@ -225,7 +228,7 @@
         </div>
         <div class="form-group">
           <label for="inp-total-budget">Tổng ngân sách (₫)</label>
-          <input id="inp-total-budget" type="number" placeholder="VD: 2000000000" />
+          <input id="inp-total-budget" type="text" inputmode="numeric" placeholder="VD: 2.000.000.000" />
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -236,6 +239,10 @@
             <label for="inp-end-date">Ngày kết thúc</label>
             <input id="inp-end-date" type="date" />
           </div>
+        </div>
+        <div class="form-group" style="margin-top: 12px; border-top: 1px solid #333; padding-top: 12px;">
+          <label for="inp-sheet-url">Google Sheet Web App URL (Đồng bộ)</label>
+          <input id="inp-sheet-url" type="url" placeholder="https://script.google.com/macros/s/.../exec" />
         </div>
         <button class="btn-primary full-width" id="save-settings-btn">Lưu</button>
       </div>
@@ -256,7 +263,7 @@
         </div>
         <div class="form-group">
           <label for="inp-cat-budget">Ngân sách (₫)</label>
-          <input id="inp-cat-budget" type="number" placeholder="VD: 500000000" />
+          <input id="inp-cat-budget" type="text" inputmode="numeric" placeholder="VD: 500.000.000" />
         </div>
         <div class="form-group">
           <label>Màu sắc</label>
@@ -290,7 +297,7 @@
         </div>
         <div class="form-group">
           <label for="inp-txn-amount">Số tiền (₫)</label>
-          <input id="inp-txn-amount" type="number" placeholder="VD: 5000000" />
+          <input id="inp-txn-amount" type="text" inputmode="numeric" placeholder="VD: 5.000.000" />
         </div>
         <div class="form-group">
           <label for="inp-txn-date">Ngày</label>

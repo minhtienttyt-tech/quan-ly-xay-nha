@@ -53,7 +53,7 @@ function openEditTransaction(id) {
   document.getElementById('modal-txn-title').textContent = 'Sửa Chi Tiêu';
   document.getElementById('inp-txn-id').value     = txn.id;
   document.getElementById('inp-txn-desc').value   = txn.description || '';
-  document.getElementById('inp-txn-amount').value = txn.amount || '';
+  document.getElementById('inp-txn-amount').value = txn.amount ? formatInputCurrency(txn.amount) : '';
   document.getElementById('inp-txn-date').value   = txn.date || todayISO();
   document.getElementById('inp-txn-note').value   = txn.note || '';
 
@@ -80,9 +80,11 @@ function saveTransaction() {
 
   if (id) {
     DB.updateTransaction(id, { categoryId: catId, description: desc, amount, date, note });
+    DB.syncToGoogleSheet('update', { id, categoryId: catId, description: desc, amount, date, note });
     showToast('Đã cập nhật chi tiêu');
   } else {
-    DB.addTransaction({ categoryId: catId, description: desc, amount, date, note });
+    const newTxn = DB.addTransaction({ categoryId: catId, description: desc, amount, date, note });
+    DB.syncToGoogleSheet('add', newTxn);
     showToast('Đã thêm chi tiêu');
   }
   closeModal('modal-transaction');

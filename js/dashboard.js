@@ -111,6 +111,7 @@ function renderTxnList(containerId, txns, catMap, showActions = true) {
       e.stopPropagation();
       if (confirm('Xóa giao dịch này?')) {
         DB.deleteTransaction(btn.dataset.id);
+        DB.syncToGoogleSheet('delete', { id: btn.dataset.id });
         showToast('Đã xóa giao dịch');
         refreshAll();
       }
