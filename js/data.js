@@ -4,6 +4,10 @@
 
 const STORAGE_KEY = 'xaynha_app_v1';
 
+// BẠN CÓ THỂ DÁN LINK GOOGLE SHEET WEB APP URL VÀO DƯỚI ĐÂY
+// ĐỂ NÓ TỰ ĐỘNG NHẬN DIỆN KHI MỞ TRÊN ĐIỆN THOẠI/MÁY TÍNH MỚI MÀ KHÔNG CẦN DÁN LẠI VÀO CÀI ĐẶT
+const GLOBAL_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwhcvUCzN2xWRh5MmgrM317tFhY_j6ZbY9DpnEmQkXloEHHVuToU-AcPNY1Qf3xMMsGWQ/exec';
+
 const DEFAULT_DATA = {
   project: {
     name: 'Dự án xây nhà',
@@ -148,9 +152,10 @@ const DB = {
 
   async syncFromGoogleSheet() {
     const proj = this.getProject();
-    if (!proj.googleSheetUrl) throw new Error("Chưa cấu hình URL Google Sheet");
+    const url = GLOBAL_SHEET_URL || proj.googleSheetUrl;
+    if (!url) throw new Error("Chưa cấu hình URL Google Sheet");
     
-    const res = await fetch(proj.googleSheetUrl);
+    const res = await fetch(url);
     const rows = await res.json();
     
     const newTxns = rows.map(r => {
@@ -179,7 +184,8 @@ const DB = {
 
   async syncToGoogleSheet(action, txn) {
     const proj = this.getProject();
-    if (!proj.googleSheetUrl) return; // Do not fail, just skip
+    const url = GLOBAL_SHEET_URL || proj.googleSheetUrl;
+    if (!url) return; // Do not fail, just skip
 
     const cat = this.getCategories().find(c => c.id === txn.categoryId);
     const payload = {
@@ -196,7 +202,7 @@ const DB = {
     };
 
     try {
-      await fetch(proj.googleSheetUrl, {
+      await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'text/plain;charset=utf-8'

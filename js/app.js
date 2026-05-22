@@ -147,10 +147,23 @@ function checkFirstRun() {
   }
 }
 
+async function autoSync() {
+  const p = DB.getProject();
+  if (GLOBAL_SHEET_URL || p.googleSheetUrl) {
+    try {
+      await DB.syncFromGoogleSheet();
+      refreshAll();
+    } catch(e) {
+      console.log('Auto sync failed:', e);
+    }
+  }
+}
+
 // ── Init ──────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => {
   bindEvents();
   navigateTo('dashboard');
   checkFirstRun();
+  autoSync();
 });
