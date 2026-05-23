@@ -1,4 +1,4 @@
-const CACHE_NAME = 'xaynha-v2';
+const CACHE_NAME = 'xaynha-v3';
 const urlsToCache = [
   './',
   './index.html',
